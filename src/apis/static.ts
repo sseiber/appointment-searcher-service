@@ -1,5 +1,5 @@
 import { RoutePlugin, route } from 'spryly';
-import { Request, ResponseToolkit } from '@hapi/hapi';
+import { Request, ResponseObject, ResponseToolkit } from '@hapi/hapi';
 import {
     dirname as pathDirname,
     join as pathJoin,
@@ -8,20 +8,20 @@ import {
 
 const rootDirectory = pathJoin(pathDirname(require.main.filename), '..');
 
-export class HomePageRoutes extends RoutePlugin {
+export class StaticRoutes extends RoutePlugin {
     @route({
         method: 'GET',
         path: '/',
         options: {
-            tags: ['homepage'],
+            tags: ['static'],
             description: 'The homepage spa',
             handler: {
                 file: pathResolve(rootDirectory, 'client_dist', 'index.html')
             }
         }
     })
-    // @ts-ignore (request)
-    public async getHomePage(request: Request, h: ResponseToolkit) {
+    // @ts-ignore (request, h)
+    public async getHomePage(request: Request, h: ResponseToolkit): Promise<ResponseObject> {
         return;
     }
 
@@ -37,7 +37,7 @@ export class HomePageRoutes extends RoutePlugin {
         }
     })
     // @ts-ignore (request, h)
-    public async getFavicon(request: Request, h: ResponseToolkit) {
+    public async getFavicon(request: Request, h: ResponseToolkit): Promise<ResponseObject> {
         return;
     }
 
@@ -56,7 +56,7 @@ export class HomePageRoutes extends RoutePlugin {
         }
     })
     // @ts-ignore (request , h)
-    public async getStatic(request: Request, h: ResponseToolkit) {
+    public async getStatic(request: Request, h: ResponseToolkit): Promise<ResponseObject> {
         return;
     }
 
@@ -64,7 +64,7 @@ export class HomePageRoutes extends RoutePlugin {
         method: 'GET',
         path: '/dist/{path*}',
         options: {
-            tags: ['homepage'],
+            tags: ['static'],
             description: 'The homepage spa bundles',
             handler: {
                 directory: {
@@ -75,7 +75,7 @@ export class HomePageRoutes extends RoutePlugin {
         }
     })
     // @ts-ignore (request, h)
-    public async getDist(request: Request, h: ResponseToolkit) {
+    public async getDist(request: Request, h: ResponseToolkit): Promise<ResponseObject> {
         return;
     }
 
@@ -83,7 +83,7 @@ export class HomePageRoutes extends RoutePlugin {
         method: 'GET',
         path: '/client_dist/{path*}',
         options: {
-            tags: ['homepage'],
+            tags: ['static'],
             description: 'The homepage spa bundles',
             handler: {
                 directory: {
@@ -94,7 +94,7 @@ export class HomePageRoutes extends RoutePlugin {
         }
     })
     // @ts-ignore (request, h)
-    public async getClientDist(request: Request, h: ResponseToolkit) {
+    public async getClientDist(request: Request, h: ResponseToolkit): Promise<ResponseObject> {
         return;
     }
 }

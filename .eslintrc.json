@@ -155,11 +155,6 @@
                 "allowArgumentsExplicitlyTypedAsAny": true
             }
         ],
-        "object-shorthand": "error",
-        "arrow-parens": [
-            "off",
-            "always"
-        ],
         "constructor-super": "error",
         "curly": "error",
         "eol-last": "error",

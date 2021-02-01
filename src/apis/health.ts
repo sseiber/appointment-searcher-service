@@ -1,5 +1,5 @@
 import { RoutePlugin, route } from 'spryly';
-import { Request, ResponseToolkit } from '@hapi/hapi';
+import { Request, ResponseObject, ResponseToolkit } from '@hapi/hapi';
 
 export class HealthRoutes extends RoutePlugin {
     @route({
@@ -12,7 +12,7 @@ export class HealthRoutes extends RoutePlugin {
         }
     })
     // @ts-ignore (request)
-    public health(request: Request, h: ResponseToolkit) {
+    public health(request: Request, h: ResponseToolkit): ResponseObject {
         return h.response('healthy').code(200);
     }
 }

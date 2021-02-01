@@ -1,5 +1,5 @@
 import { inject, RoutePlugin, route } from 'spryly';
-import { Request, ResponseToolkit } from '@hapi/hapi';
+import { Request, ResponseObject, ResponseToolkit } from '@hapi/hapi';
 import * as Boom from '@hapi/boom';
 import { ISearchEndpointRequest, SearchService } from '../services/search';
 
@@ -16,7 +16,7 @@ export class SearchRoutes extends RoutePlugin {
         }
     })
     // @ts-ignore (request)
-    public async getSearchEndpoints(request: Request, h: ResponseToolkit) {
+    public async getSearchEndpoints(request: Request, h: ResponseToolkit): Promise<ResponseObject> {
         try {
             const response = await this.search.getEndpoints();
 
@@ -35,7 +35,7 @@ export class SearchRoutes extends RoutePlugin {
             description: 'Search for an open appointment'
         }
     })
-    public async postSearchAppointment(request: Request, h: ResponseToolkit) {
+    public async postSearchAppointment(request: Request, h: ResponseToolkit): Promise<ResponseObject> {
         const searchEndpointRequest = request.payload as ISearchEndpointRequest;
 
         try {
