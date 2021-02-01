@@ -3,7 +3,6 @@ import { Server } from '@hapi/hapi';
 import * as cheerio from 'cheerio';
 import * as Wreck from '@hapi/wreck';
 import * as fse from 'fs-extra';
-import * as playSound from 'play-sound';
 import * as chalk from 'chalk';
 import { join as pathJoin } from 'path';
 import { bind } from '../utils';
@@ -11,13 +10,19 @@ import { bind } from '../utils';
 export interface ISearchEndpoint {
     id: string;
     name: string;
+    description: string;
     endpoint: string;
 }
 
-interface ISearchResponse {
+export interface ISearchEndpointRequest {
+    id: string;
+}
+
+export interface ISearchResponse {
     status: boolean;
     id: string;
     name: string;
+    description: string;
     available: number;
 }
 
@@ -61,9 +66,20 @@ export class SearchService {
         return this.searchEndpoints;
     }
 
-    public async search(searchEndpoint: ISearchEndpoint): Promise<ISearchResponse> {
+    public async search(searchEndpointId: string): Promise<ISearchResponse> {
         let status = true;
         let available = 0;
+
+        const searchEndpoint = this.searchEndpoints.find(endpoint => endpoint.id === searchEndpointId);
+        if (!searchEndpoint) {
+            return {
+                status: false,
+                id: searchEndpointId,
+                name: 'Unknown',
+                description: 'Unknown',
+                available: 0
+            };
+        }
 
         try {
             const sqPageData = await this.sqRequest(searchEndpoint.endpoint);
@@ -82,25 +98,26 @@ export class SearchService {
             status,
             id: searchEndpoint.id,
             name: searchEndpoint.name,
+            description: searchEndpoint.description,
             available
         };
     }
 
     @bind
-    private async searchEndpoint(searchEndpoint: ISearchEndpoint): Promise<void> {
+    private async searchEndpoint(searchEndpointId: string): Promise<void> {
         const startTicks = Date.now();
 
+        const searchEndpoint = this.searchEndpoints.find(endpoint => endpoint.id === searchEndpointId);
+        if (!searchEndpoint) {
+            return;
+        }
+
         try {
-            const searchResponse = await this.search(searchEndpoint);
+            const searchResponse = await this.search(searchEndpointId);
 
             this.server.log([moduleName, 'info'], chalk.yellow(`Searching: ${searchResponse.name}`));
 
             if (searchResponse.available) {
-                await new Promise((resolve) => {
-                    playSound().play(this.alertSoundPath);
-                    return resolve('');
-                });
-
                 this.server.log([moduleName, 'info'], chalk.greenBright(`\n\n#### ${searchResponse.name}\n#### ${searchResponse.available} appointments available\n`));
             }
             else {
@@ -113,7 +130,7 @@ export class SearchService {
 
         const timeout = (1000 * (this.requestInterval)) - (Date.now() - startTicks)
 
-        setTimeout(this.searchEndpoint, timeout > 0 ? timeout : 1000, searchEndpoint);
+        setTimeout(this.searchEndpoint, timeout > 0 ? timeout : 1000, searchEndpointId);
     }
 
     private async parseOpenAppointments(sqPageData: any): Promise<any[]> {
@@ -156,7 +173,7 @@ export class SearchService {
             return payload;
         }
         catch (ex) {
-            this.server.log([moduleName, 'error'], `refineIntent: ${ex.message}`);
+            this.server.log([moduleName, 'error'], `Request error: ${ex.message}`);
             throw ex;
         }
     }

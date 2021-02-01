@@ -1,7 +1,7 @@
 import { inject, RoutePlugin, route } from 'spryly';
 import { Request, ResponseToolkit } from '@hapi/hapi';
 import * as Boom from '@hapi/boom';
-import { ISearchEndpoint, SearchService } from '../services/search';
+import { ISearchEndpointRequest, SearchService } from '../services/search';
 
 export class SearchRoutes extends RoutePlugin {
     @inject('search')
@@ -36,10 +36,10 @@ export class SearchRoutes extends RoutePlugin {
         }
     })
     public async postSearchAppointment(request: Request, h: ResponseToolkit) {
-        const searchEndpoint = request.payload as ISearchEndpoint;
+        const searchEndpointRequest = request.payload as ISearchEndpointRequest;
 
         try {
-            const searchResponse = await this.search.search(searchEndpoint);
+            const searchResponse = await this.search.search(searchEndpointRequest.id);
 
             return h.response(searchResponse).code(201);
         }

@@ -24,7 +24,7 @@
                 "NODE_ENV": "local",
                 "PORT": "8084",
                 "APP_STORAGE": "${workspaceFolder}",
-                "STAND_ALONE": "1"
+                "STAND_ALONE": "0"
             },
             "runtimeArgs": [
                 "--preserve-symlinks"
