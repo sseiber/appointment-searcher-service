@@ -13,6 +13,7 @@ ADD .eslintrc.json ${WORKINGDIR}/.eslintrc.json
 ADD decs.d.ts ${WORKINGDIR}/decs.d.ts
 ADD tsconfig.json ${WORKINGDIR}/tsconfig.json
 ADD src ${WORKINGDIR}/src
+ADD client_dist ${WORKINGDIR}/client_dist
 
 RUN npm install -q && \
     npm run build && \

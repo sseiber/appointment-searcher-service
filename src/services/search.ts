@@ -34,7 +34,6 @@ export class SearchService {
     private server: Server;
 
     private config: any = {};
-    private alertSoundPath: string = '/data/storage/alert.mp3';
     private requestInterval: number = 20;
     private searchEndpoints: ISearchEndpoint[];
 
@@ -44,7 +43,6 @@ export class SearchService {
         this.server.method({ name: 'search.startSearch', method: this.startSearch });
 
         this.config = await fse.readJson(pathJoin((this.server.settings.app as any).appStorageDirectory, 'storage', 'config.json'));
-        this.alertSoundPath = pathJoin((this.server.settings.app as any).appStorageDirectory, 'storage', 'alert.mp3');
 
         this.requestInterval = Number(this.config.requestInterval || 20);
         this.searchEndpoints = this.config.searchEndpoints || [];
