@@ -60,6 +60,26 @@ export class StaticRoutes extends RoutePlugin {
         return;
     }
 
+
+    @route({
+        method: 'GET',
+        path: '/assets/{path*}',
+        options: {
+            tags: ['static'],
+            description: 'The static assets',
+            handler: {
+                directory: {
+                    path: pathJoin(rootDirectory, 'assets'),
+                    index: false
+                }
+            }
+        }
+    })
+    // @ts-ignore (request , h)
+    public async getAssets(request: Request, h: ResponseToolkit): Promise<ResponseObject> {
+        return;
+    }
+
     @route({
         method: 'GET',
         path: '/dist/{path*}',
