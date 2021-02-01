@@ -3,7 +3,7 @@ import { pjson } from './utils';
 
 const pkg = pjson();
 
-const DefaultPort = 8084;
+const DefaultPort = 9072;
 const PORT = process.env.PORT || process.env.port || process.env.PORT0 || process.env.port0 || DefaultPort;
 
 // @ts-ignore

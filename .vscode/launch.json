@@ -22,7 +22,7 @@
             ],
             "env": {
                 "NODE_ENV": "local",
-                "PORT": "8084",
+                "PORT": "9072",
                 "APP_STORAGE": "${workspaceFolder}",
                 "STAND_ALONE": "0"
             },
