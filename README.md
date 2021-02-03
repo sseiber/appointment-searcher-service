@@ -81,7 +81,7 @@ docker run \
 	--rm \
 	-p 9072:9072 \
 	-v <path to directory containing your config file>:/data \
-iotccrscotts.azurecr.io/appointment-searcher-service:1.0.0-amd64
+mystuff.azurecr.io/appointment-searcher-service:1.0.0-amd64
 ```
 This command will:
 * Run the docker file (`docker run`)
