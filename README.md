@@ -65,7 +65,7 @@ Click the "Get Started" button and you will see a checkbox for each of the endpo
 
 The results with either be "No appointments found" or it will be a list of appointments with a button enabled to launch a web page to site it was using. The scanning is paused when an appointment is found so you will need to press the "Resume" button to continue.
 
-![Open appointment found](/docs/appointment.jpeg)
+<img alt="Open appointment found" src="https://github.com/sseiber/appointment-searcher-service/blob/master/docs/appointment.jpeg" width="200">
 
 At this point you are on your own. As I said, there is no "back door" functionality with this tool. It simply automates the process of looking for open appointments and then gives control back to you to select the appointment yourself, register, and submit. Maybe a future improvement is needed here. 😉
 
