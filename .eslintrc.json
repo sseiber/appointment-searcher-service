@@ -32,7 +32,7 @@
         ],
         "arrow-body-style": [
             "error",
-            "always"
+            "as-needed"
         ],
         "brace-style": [
             "error",

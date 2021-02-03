@@ -18,15 +18,21 @@ export interface ISearchEndpointRequest {
     id: string;
 }
 
+export interface IOpenSlot {
+    date: string;
+    time: string;
+    dose: string;
+}
+
 export interface ISearchResponse {
     status: boolean;
     id: string;
     name: string;
     description: string;
-    available: number;
+    openSlots: IOpenSlot[];
 }
 
-const moduleName = 'Search'
+const moduleName = 'Search';
 
 @service('search')
 export class SearchService {
@@ -34,7 +40,6 @@ export class SearchService {
     private server: Server;
 
     private config: any = {};
-    private requestInterval: number = 20;
     private searchEndpoints: ISearchEndpoint[];
 
     public async init(): Promise<void> {
@@ -44,12 +49,11 @@ export class SearchService {
 
         this.config = await fse.readJson(pathJoin((this.server.settings.app as any).appStorageDirectory, 'storage', 'config.json'));
 
-        this.requestInterval = Number(this.config.requestInterval || 20);
         this.searchEndpoints = this.config.searchEndpoints || [];
     }
 
     @bind
-    public async startSearch() {
+    public async startSearch(): Promise<void> {
         if (!process.env.STAND_ALONE || process.env.STAND_ALONE !== '1') {
             return;
         }
@@ -66,7 +70,7 @@ export class SearchService {
 
     public async search(searchEndpointId: string): Promise<ISearchResponse> {
         let status = true;
-        let available = 0;
+        let openSlots: IOpenSlot[] = [];
 
         const searchEndpoint = this.searchEndpoints.find(endpoint => endpoint.id === searchEndpointId);
         if (!searchEndpoint) {
@@ -75,16 +79,14 @@ export class SearchService {
                 id: searchEndpointId,
                 name: 'Unknown',
                 description: 'Unknown',
-                available: 0
+                openSlots
             };
         }
 
         try {
             const sqPageData = await this.sqRequest(searchEndpoint.endpoint);
 
-            const searchResult = await this.parseOpenAppointments(sqPageData);
-
-            available = searchResult.length;
+            openSlots = await this.parseOpenAppointments(sqPageData);
         }
         catch (ex) {
             status = false;
@@ -97,14 +99,12 @@ export class SearchService {
             id: searchEndpoint.id,
             name: searchEndpoint.name,
             description: searchEndpoint.description,
-            available
+            openSlots
         };
     }
 
     @bind
     private async searchEndpoint(searchEndpointId: string): Promise<void> {
-        const startTicks = Date.now();
-
         const searchEndpoint = this.searchEndpoints.find(endpoint => endpoint.id === searchEndpointId);
         if (!searchEndpoint) {
             return;
@@ -115,8 +115,8 @@ export class SearchService {
 
             this.server.log([moduleName, 'info'], chalk.yellow(`Searching: ${searchResponse.name}`));
 
-            if (searchResponse.available) {
-                this.server.log([moduleName, 'info'], chalk.greenBright(`\n\n#### ${searchResponse.name}\n#### ${searchResponse.available} appointments available\n`));
+            if (searchResponse.openSlots.length > 0) {
+                this.server.log([moduleName, 'info'], chalk.greenBright(`\n\n#### ${searchResponse.name}\n#### ${searchResponse.openSlots.length} appointments available\n`));
             }
             else {
                 this.server.log([moduleName, 'info'], chalk.yellow(`No appointments available\n`));
@@ -126,29 +126,62 @@ export class SearchService {
             this.server.log([moduleName, 'error'], chalk.red(`Error while processing request\n`));
         }
 
-        const timeout = (1000 * (this.requestInterval)) - (Date.now() - startTicks)
-
-        setTimeout(this.searchEndpoint, timeout > 0 ? timeout : 1000, searchEndpointId);
+        setTimeout(this.searchEndpoint, 1000, searchEndpointId);
     }
 
-    private async parseOpenAppointments(sqPageData: any): Promise<any[]> {
-        const openAppointments: any[] = [];
-
+    private async parseOpenAppointments(sqPageData: any): Promise<IOpenSlot[]> {
         const $ = cheerio.load(Buffer.from(sqPageData, 'base64'));
 
-        // // @ts-ignore (idx)
-        // $('.SUGtableouter tr > td > table > tbody > tr > td > div').each((ielem: any, elem: any) => {
-        //     const result = elem;
+        const openSlots: IOpenSlot[] = [];
 
-        //     return result;
-        // });
+        let date: string;
 
-        // @ts-ignore (ielem, elem)
-        $('span.SUGbutton').each((ielem: any, elem: any) => {
-            openAppointments.push('test');
+        // @ts-ignore
+        $('table.SUGtableouter tbody tr').each((iRow, rowElement) => {
+            const cells = $(rowElement).children('td.SUGtable').toArray();
+
+            let doseRowOffset = 0;
+            const doseRowIndex = 1;
+
+            switch (cells.length) {
+                case 2:
+                    doseRowOffset = 0;
+
+                    break;
+
+                case 4:
+                    date = $(cells[0]).find('span.SUGbigbold').text();
+                    doseRowOffset = 2;
+
+                    break;
+
+                default:
+                    return;
+            }
+
+            const doseRows = $(cells[doseRowIndex + doseRowOffset]).find('table tbody').children('tr').toArray();
+            const time = $(cells[doseRowOffset]).find('span.SUGbigbold').text().trim();
+            const firstDoseAvailable = ($($(doseRows[0]).children('td').toArray()[2]).find('span.SUGbutton').length || 0) > 0;
+            const secondDoseAvailable = ($($(doseRows[1]).children('td').toArray()[2]).find('span.SUGbutton').length || 0) > 0;
+
+            if (firstDoseAvailable) {
+                openSlots.push({
+                    date,
+                    time,
+                    dose: 'First Dose'
+                });
+            }
+
+            if (secondDoseAvailable) {
+                openSlots.push({
+                    date,
+                    time,
+                    dose: 'Second Dose'
+                });
+            }
         });
 
-        return openAppointments;
+        return openSlots;
     }
 
     private async sqRequest(uri: string): Promise<any> {
@@ -162,10 +195,7 @@ export class SearchService {
             if (res.statusCode < 200 || res.statusCode > 299) {
                 this.server.log([moduleName, 'error'], `Response status code = ${res.statusCode}`);
 
-                throw ({
-                    message: (payload as any)?.message || (payload as any)?.error?.message || payload || 'An error occurred',
-                    statusCode: res.statusCode
-                });
+                throw new Error((payload as any)?.message || (payload as any)?.error?.message || payload || 'An error occurred');
             }
 
             return payload;
