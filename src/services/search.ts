@@ -47,7 +47,7 @@ export class SearchService {
 
         this.server.method({ name: 'search.startSearch', method: this.startSearch });
 
-        this.config = await fse.readJson(pathJoin((this.server.settings.app as any).appStorageDirectory, 'storage', 'config.json'));
+        this.config = await fse.readJson(pathJoin((this.server.settings.app as any).appStorageDirectory, 'config.json'));
 
         this.searchEndpoints = this.config.searchEndpoints || [];
     }
@@ -116,7 +116,10 @@ export class SearchService {
             this.server.log([moduleName, 'info'], chalk.yellow(`Searching: ${searchResponse.name}`));
 
             if (searchResponse.openSlots.length > 0) {
-                this.server.log([moduleName, 'info'], chalk.greenBright(`\n\n#### ${searchResponse.name}\n#### ${searchResponse.openSlots.length} appointments available\n`));
+                for (const openSlot of searchResponse.openSlots) {
+                    const message = `\n\n#### ${searchResponse.name}\n#### ${searchResponse.openSlots.length} appointments available\n#### ${openSlot.date} ${openSlot.time} for ${openSlot.dose}\n`;
+                    this.server.log([moduleName, 'info'], chalk.greenBright(message));
+                }
             }
             else {
                 this.server.log([moduleName, 'info'], chalk.yellow(`No appointments available\n`));

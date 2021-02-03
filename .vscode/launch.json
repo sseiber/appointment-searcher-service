@@ -36,7 +36,7 @@
             "env": {
                 "NODE_ENV": "local",
                 "PORT": "9072",
-                "APP_STORAGE": "${workspaceFolder}",
+                "APP_STORAGE": "${workspaceFolder}/storage",
                 "STAND_ALONE": "0"
             },
             "runtimeArgs": [
