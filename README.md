@@ -59,7 +59,13 @@ Press F5 to build the project and run. You should see log output indicating that
 
 For an even better experience run the React web client against this service (don't set the `STAND_ALONE` enviroment variable...). The pre-built verson is in the `./client_dist` directory and this micro-service will serve up static content (e.g. the React app) from that directory. The service will run on port 9072 (unless you modified it). With the service running navigate your browser to [http://localhost:9072](http://localhost:9072) and you will see the web client experience.
 
-Click the "Get Started" button and you will see a checkbox for each of the endpoint you configured in the config file. Select one of the endpoints and it will display a card indicating that it is retrieving appointment data and displaying the results. The results with either be "No appointments found" or it will be a list of appointments with a button enabled to launch a web page to site it was using. The scanning is paused when an appointment is found so you will need to press the "Resume" button to continue.
+Click the "Get Started" button and you will see a checkbox for each of the endpoints you configured in the config file. Select one of the endpoints and it will display a card indicating that it is retrieving appointment data and displaying the results.
+
+![Selected endpoint](/docs/running.jpeg)
+
+The results with either be "No appointments found" or it will be a list of appointments with a button enabled to launch a web page to site it was using. The scanning is paused when an appointment is found so you will need to press the "Resume" button to continue.
+
+![Open appointment found](/docs/appointmnet.jpeg)
 
 At this point you are on your own. As I said, there is no "back door" functionality with this tool. It simply automates the process of looking for open appointments and then gives control back to you to select the appointment yourself, register, and submit. Maybe a future improvement is needed here. 😉
 

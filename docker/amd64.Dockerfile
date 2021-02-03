@@ -11,6 +11,8 @@ WORKDIR ${WORKINGDIR}
 ADD package.json ${WORKINGDIR}/package.json
 ADD .eslintrc.json ${WORKINGDIR}/.eslintrc.json
 ADD tsconfig.json ${WORKINGDIR}/tsconfig.json
+ADD LICENSE ${WORKINGDIR}/LICENSE
+ADD README.md ${WORKINGDIR}/README.md
 ADD src ${WORKINGDIR}/src
 ADD client_dist ${WORKINGDIR}/client_dist
 ADD client_dist/assets ${WORKINGDIR}/assets
